@@ -1,71 +1,97 @@
 ____________________________________________________________________________
-[   922] By: autrijus@autribsd                     on 2001/06/06 05:15:00
-	Log: * a very weird workaround.
-       Path: t
-	   ! Index-ChatBot.t
+[  2746] By: autrijus                              on 2001/12/29  07:18:52
+        Log: * This be OurNet::FuzzyIndex v1.54.
+             * Updates README to reflect some recent happenings.
+             * Makefile.PL now flushes buffer before making db.
+	   ! Makefile.PL README
 ____________________________________________________________________________
-[   921] By: autrijus@autribsd                     on 2001/06/06 05:07:26
-	Log: * the actualbundling of fianjmo package.
-       Path: bin
-	   ! fianjmo
-       Path: t
-	   ! Index-ChatBot.t
-____________________________________________________________________________
-[   920] By: autrijus@autribsd                     on 2001/06/06 04:49:16
-	Log: * Incoporating fianjmo into FuzzyIndex 1.52
-       Path: bin
-	   + fianjmo
-	   ! fzindex fzquery
-       Path: .
-	   + ChatBot.pm
-	   ! FuzzyIndex.pm MANIFEST Makefile.PL
-       Path: t
-	   + Index-ChatBot.t
-	   ! FuzzyIndex.t
-____________________________________________________________________________
-[   911] By: autrijus@autricvic                    on 2001/06/06 00:46:06
-	Log: * patch toward 1.51
-       Path: .
-	   ! FuzzyIndex.pm MANIFEST
-____________________________________________________________________________
-[   896] By: autrijus@autribsd                     on 2001/06/02 05:35:07
-	Log: * Makefile.PL typo
-       Path: .
+[  2745] By: autrijus                              on 2001/12/29  07:08:25
+        Log: * change config target to linkext to satisfy nmake.exe.
 	   ! Makefile.PL
 ____________________________________________________________________________
-[   894] By: autrijus@autribsd                     on 2001/06/02 05:10:17
-	Log: * leading up for 1.5 OurNet::* release
-       Path: .
-	   ! Changes FuzzyIndex.pm MANIFEST README
-	   - TODO
+[  2744] By: autrijus                              on 2001/12/29  06:44:18
+        Log: * notifies the user before building fianjmo.db.
+             * removes the old fianjmo.db.
+	   ! Makefile.PL
 ____________________________________________________________________________
-[   893] By: autrijus@autribsd                     on 2001/06/02 04:58:28
-	Log: * OurNet::BBSAgent branch.
-       Path: .
-	   ! MANIFEST
+[  2743] By: autrijus                              on 2001/12/29  06:41:00
+        Log: * Changed the fianjmo.db building target to "config" instead of "test"
+             * bin/fianjmo uses the {nextone} property to get more accurate answers.
+             * The test case now allows for different sort algorithms.
+             * includes the PerlCtrl is distro now.
+             * updates MANIFEST.
+	   ! ChatBot.pm FuzzyIndex.pm MANIFEST Makefile.PL bin/fianjmo
+	   ! t/Index-ChatBot.t
 ____________________________________________________________________________
-[   885] By: autrijus@autribsd                     on 2001/06/02 03:57:47
-	Log: * missing changes and manifest.
-       Path: .
+[  2740] By: autrijus                              on 2001/12/28  07:15:35
+        Log: * cleans up style, comments and linting
+             * uses ppport.h to accomplish true 5.000+ compatibility
+             * implements newSVuv manually by ourselves
+	   + ppport.h
+	   ! FuzzyIndex.pm FuzzyIndex.xs parse.c
+____________________________________________________________________________
+[  2267] By: autrijus                              on 2001/11/04  05:58:30
+        Log: * the belated changes.
+	   ! Changes
+____________________________________________________________________________
+[  2265] By: autrijus                              on 2001/11/04  00:07:08
+        Log: * finally, a working fuzzyindex control.
+	   ! PerlCtrl/FuzzyIndex.pl PerlCtrl/FuzzyIndex.vbs
+	   ! PerlCtrl/Makefile
+____________________________________________________________________________
+[  2258] By: autrijus                              on 2001/11/02  21:36:51
+        Log: * win32 controll wrapper for fuzzyindex.
+	   + PerlCtrl/FuzzyIndex.pl PerlCtrl/FuzzyIndex.vbs
+	   + PerlCtrl/Makefile
+____________________________________________________________________________
+[  2257] By: autrijus                              on 2001/11/02  20:49:08
+        Log: * updated scripts to have RCS tags and modern POD.
+             * this by FuzzyIndex v1.53 release.
+	   ! bin/fianjmo bin/fzindex bin/fzquery
+____________________________________________________________________________
+[  2149] By: autrijus                              on 2001/10/18  06:43:43
+        Log: * cut sales-talk in README.
+             * much better POD for ChatBot.
+             * clarify parse.c layout.
+	   ! ChatBot.pm FuzzyIndex.pm Makefile.PL README parse.c
+____________________________________________________________________________
+[  2009] By: autrijus                              on 2001/10/09  11:52:29
+        Log: * patch+kluge to make FuzzyIndex work under 5.5.
+	   ! ChatBot.pm FuzzyIndex.xs Makefile.PL t/FuzzyIndex.t
+____________________________________________________________________________
+[  1490] By: clkao                                 on 2001/07/30  11:43:30
+        Log: create db files in the proper directory.
+	   ! ChatBot.pm
+____________________________________________________________________________
+[   922] By: autrijus                              on 2001/06/05  14:15:00
+        Log: * a very weird workaround.
+	   ! t/Index-ChatBot.t
+____________________________________________________________________________
+[   921] By: autrijus                              on 2001/06/05  14:07:26
+        Log: * the actualbundling of fianjmo package.
+	   ! bin/fianjmo t/Index-ChatBot.t
+____________________________________________________________________________
+[   920] By: autrijus                              on 2001/06/05  13:49:16
+        Log: * Incoporating fianjmo into FuzzyIndex 1.52
+	   + ChatBot.pm bin/fianjmo t/Index-ChatBot.t
+	   ! FuzzyIndex.pm MANIFEST Makefile.PL bin/fzindex bin/fzquery
+	   ! t/FuzzyIndex.t
+____________________________________________________________________________
+[   885] By: autrijus                              on 2001/06/01  12:57:47
+        Log: * missing changes and manifest.
 	   + Changes
 	   ! MANIFEST
 ____________________________________________________________________________
-[   884] By: autrijus@autribsd                     on 2001/06/02 03:56:00
-	Log: * missing TODO
-       Path: .
+[   884] By: autrijus                              on 2001/06/01  12:56:00
+        Log: * missing TODO
 	   + TODO
 ____________________________________________________________________________
-[   883] By: autrijus@autribsd                     on 2001/06/02 03:55:35
-	Log: * branch out for seperate release
-       Path: bin
-	   + fzindex fzquery
-       Path: .
-	   FuzzyIndex.xs avltree.c avltree.h parse.c
-	   + FuzzyIndex.pm Makefile.PL README
-       Path: t
-	   + FuzzyIndex.t
+[   883] By: autrijus                              on 2001/06/01  12:55:35
+        Log: * branch out for seperate release
+	   + FuzzyIndex.pm Makefile.PL README bin/fzindex bin/fzquery
+	   + t/FuzzyIndex.t
+	  +> FuzzyIndex.xs avltree.c avltree.h parse.c
 ____________________________________________________________________________
-[   882] By: autrijus@autribsd                     on 2001/06/02 03:22:34
-	Log: * branch back into OurNet-FuzzyIndex.
-       Path: .
+[   882] By: autrijus                              on 2001/06/01  12:22:34
+        Log: * branch back into OurNet-FuzzyIndex.
 	   + MANIFEST

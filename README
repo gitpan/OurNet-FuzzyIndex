@@ -1,9 +1,9 @@
 # $File: //depot/OurNet-FuzzyIndex/README $ $Author: autrijus $
-# $Revision: #5 $ $Change: 2166 $ $DateTime: 2001/10/20 01:19:57 $
+# $Revision: #6 $ $Change: 2746 $ $DateTime: 2001/12/29 07:18:52 $
 
 This is the README file for OurNet::FuzzyIndex, an inverted search
-engine for double-byte characters, by Elixir Group and OurInternet 
-Inc.
+engine for double-byte characters, by The Elixir Initiative and
+OurInternet Inc.
 
 * Installation
 
@@ -14,12 +14,17 @@ make
 make test
 make install
 
-Note that scripts in bin/ directory could be useful tutorials, too.
+If you are on Win32 and without a compiler, please use the pre-
+compiled binaries at http://melix.elixus.org/ instead.
+
+After installation, type "fianjmo" in your command prompt for
+an interactive chat in Traditional Chinese (zh_TW.Big5), which
+comes with the bundled OurNet::ChatBot module.
 
 * Copyright
 
-Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>,
-		  Chia-Liang Kao E<lt>clkao@clkao.org>.
+Copyright 2001 by Autrijus Tang <autrijus@autrijus.org>,
+		  Chia-Liang Kao <clkao@clkao.org>.
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.

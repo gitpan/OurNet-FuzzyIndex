@@ -1,15 +1,15 @@
 # $File: //depot/OurNet-FuzzyIndex/FuzzyIndex.pm $ $Author: autrijus $
-# $Revision: #6 $ $Change: 2149 $ $DateTime: 2001/10/18 21:43:43 $
+# $Revision: #8 $ $Change: 2743 $ $DateTime: 2001/12/29 06:41:00 $
 
 package OurNet::FuzzyIndex;
 require 5.005;
 
-$OurNet::FuzzyIndex::VERSION = '1.53';
+$OurNet::FuzzyIndex::VERSION = '1.54';
 
 use strict;
 use integer;
-use DB_File qw/$DB_BTREE/;
 use base qw/DynaLoader Exporter/;
+use DB_File qw/$DB_BTREE/;
 
 bootstrap OurNet::FuzzyIndex $OurNet::FuzzyIndex::VERSION;
 
@@ -111,9 +111,9 @@ Fix bugs concerning sub_dbs
 # ---------------
 # Variable Fields
 # ---------------
-use fields qw/dbfile   flag     deleted
-              idxcount subcount submod   submin   submax
-              obj      db       subobj   subdb/;
+use fields qw/dbfile	flag	deleted
+	      idxcount subcount submod   submin   submax
+	      obj      db       subobj   subdb/;
 
 # -----------------
 # Package Constants
@@ -137,17 +137,16 @@ use constant MATCH_PART  => -1;
 use constant MATCH_NOT   => -2;
 
 use vars qw/$MATCH_EXACT $MATCH_FUZZY $MATCH_PART $MATCH_NOT @EXPORT/;
-@EXPORT = qw/$MATCH_EXACT $MATCH_FUZZY $MATCH_PART $MATCH_NOT/;
+@EXPORT = qw/$MATCH_EXACT $MATCH_FUZZY $MATCH_PART $MATCH_NOT
+	      MATCH_EXACT  MATCH_FUZZY  MATCH_PART  MATCH_NOT/;
 
-$MATCH_EXACT = MATCH_EXACT;
-$MATCH_FUZZY = MATCH_FUZZY;
-$MATCH_PART  = MATCH_PART;
-$MATCH_NOT   = MATCH_NOT;
+$MATCH_EXACT = MATCH_EXACT; $MATCH_FUZZY = MATCH_FUZZY;
+$MATCH_PART  = MATCH_PART;  $MATCH_NOT   = MATCH_NOT;
 
 # ------------------------------------------------------------------------
 # Subroutine new($dbfile, $pagesize, $cachesize, $split, $submin, $submax)
 # ------------------------------------------------------------------------
-sub new {
+sub new($;$$$$$) {
     my $class = shift;
     my $self  = ($] > 5.00562) ? fields::new($class)
                                : do { no strict 'refs';
@@ -159,7 +158,7 @@ sub new {
                       die("Cannot read main DB: $self->{dbfile}") :
                       (O_RDWR|O_CREAT);
 
-    $DB_BTREE->{psize} = shift || 0;
+    $DB_BTREE->{psize}	   = shift || 0;
     $DB_BTREE->{cachesize} = shift || (($self->{flag} == O_RDONLY) ?
                                         MEM_WRITE : MEM_READ) /
       (($self->{subcount}  = shift || 0) + 1);
@@ -182,8 +181,7 @@ sub new {
     }
 
     if (exists $self->{db}{_deteled}) {
-        $self->{deleted}{$_} = '' 
-            foreach (split(/(....)/s, $self->{db}{_deleted}));
+	@{$self->{deleted}}{split(/(....)/s, $self->{db}{_deleted})} = ();
     }
     else {
         $self->_store('_deleted', '');
@@ -212,24 +210,25 @@ sub new {
     return $self;
 }
 
-sub subval {
+sub subval() {
     my $self = shift;
 
-    return ($self->{submod}, $self->{submin}, $self->{submax});
+    return @{$self}{qw/submod submin submax/};
 }
 
 # ------------------------------------------------------------
 # Subroutine parse_xs([$self], $content, [$weight], [\%words])
 # ------------------------------------------------------------
-sub parse_xs {
+sub parse_xs($;$$$) {
     my $self    = UNIVERSAL::isa($_[0], __PACKAGE__) ? shift : undef;
     my $wordref = ref($_[-1]) ? pop : 0;
+
     local $^W; # no warnings, thank you
 
     _parse(
         \$_[0], $wordref, ($_[1] || 1),
         ((defined $self) ? $self->subval
-                         : (0,0,0))
+                         : (0, 0, 0))
     );
 
     return wantarray ? %{$wordref} : $wordref;
@@ -238,14 +237,12 @@ sub parse_xs {
 # ------------------------------------------------------
 # Subroutine parse([$self], $content, $weight, [%words])
 # ------------------------------------------------------
-sub parse {
+sub parse($$;$$) {
     my $self    = UNIVERSAL::isa($_[0], __PACKAGE__) ? shift : undef;
-
     my $weight  = $_[1] || 1;
-    my %words   = @_[2..$#_];
+    my %words   = @_[2 .. $#_];
 
     my ($mod, $min, $max) = $self->subval if defined $self;
-
     my ($lastpos, $strlen, $this, $next) = (0, length($_[0]));
 
     # Obfuscated Perl Contest entry starts here
@@ -280,7 +277,7 @@ sub parse {
 # ----------------------------------------------------
 # Subroutine insert($self, $key, [$content | \%words])
 # ----------------------------------------------------
-sub insert {
+sub insert($$$) {
     my ($self, $key) = splice(@_, 0, 2);
     local $^W; # no warnings, thank you
 
@@ -294,7 +291,7 @@ sub insert {
         _insert(
             \$_[0], $id, $self->{obj},
             $self->{submod} ? $self->subval
-                            : (0,0,0)
+                            : (0, 0, 0)
         ) if length($_[0]);
     }
     else {
@@ -304,9 +301,9 @@ sub insert {
 
         if (!$self->{submod}) {
             while (my ($entry, $freq) = each %{$matchref}) {
-                if (($v = substr($entry, -2)) eq "  ") {
+                if (($v = substr($entry, -2)) eq '  ') {
                     # Latin-1
-                    $self->{db}{substr($entry, 0, -2)} = $id."  ".chr($freq);
+                    $self->{db}{substr($entry, 0, -2)} = $id.'  '.chr($freq);
                 }
                 elsif (($k = substr($entry, 0, -2)) eq $lastkey) {
                     # Big-5 continued
@@ -320,7 +317,7 @@ sub insert {
                 }
             }
 
-            $self->{db}{$lastkey} = $id.$lastval if $lastkey;
+            $self->{db}{$lastkey} = $id . $lastval if $lastkey;
         } else {
             my ($mod, $min, $max) = $self->subval;
             my $thismod;
@@ -330,10 +327,10 @@ sub insert {
                 next if ($thismod < $min or
                          $thismod > $max);
 
-                if ($v = substr($entry, -2) eq "  ") {
+                if ($v = substr($entry, -2) eq '  ') {
                     # Latin-1
                     $self->{subdb}[$thismod]{substr($entry, 0, -2)} = 
-					    $id."  ".chr($freq);
+					    $id.'  '.chr($freq);
                 }
                 elsif (($k = substr($entry, 0, -2)) eq $lastkey) {
                     # Big-5 continued
@@ -362,18 +359,18 @@ sub insert {
 # -------------------------------------------------
 # Subroutine query($self, $query, $flag, [\%match])
 # -------------------------------------------------
-sub query {
+sub query($$;$$) {
     my $self  = shift;
     my $flag  = $_[1];
+    my $words = 0;
     my %match = ref($_[2]) ? %{$_[2]} : ();
     my %matchnext;
-    my ($words, @parsed) = 0;
     my ($mod, $min, $max) = $self->subval;
-    my $done;
+    my (@parsed, $done);
 
     local $^W; # no warnings, thank you
 
-    _parse_q(\$_[0], '    ', sub  {
+    _parse_q(\$_[0], '    ', sub {
         return if $done;
         
         my ($qk, $qv) = @_;
@@ -398,7 +395,7 @@ sub query {
         if (@matched) {
             while ($vk = substr($qv, $valp += 3, 2)) {
                 my $wordcount = 0;
-                $vv = ord(substr($qv, $valp + 2, 1));
+                $vv	= ord(substr($qv, $valp + 2, 1));
                 $words += $vv;
 
                 if ($vk eq '!!') {
@@ -412,12 +409,14 @@ sub query {
                         if ($flag == MATCH_EXACT) {
                             if (!%match) {
                                 $matchnext{$seq} = (
-                                    length($match) * SCORE_ALL / $wordcount + SCORE_EACH
+                                    length($match)
+				    * SCORE_ALL / $wordcount + SCORE_EACH
                                 ) * $vv;
                             }
                             elsif (exists $match{$seq}) {
                                 $matchnext{$seq} = (
-                                    length($match) * SCORE_ALL / $wordcount + SCORE_EACH
+                                    length($match)
+				    * SCORE_ALL / $wordcount + SCORE_EACH
                                 ) * $vv;
 
                                 $matchnext{$seq} += $match{$seq}
@@ -431,7 +430,8 @@ sub query {
                         }
                         else {
                             $match{$seq} += (
-                                length($match) * SCORE_ALL / $wordcount + SCORE_EACH
+                                length($match)
+				* SCORE_ALL / $wordcount + SCORE_EACH
                             ) * $vv;
                         }
                     }
@@ -496,31 +496,30 @@ sub query {
     });
 
     if ($words > 1) {
-        foreach my $key (keys(%match)) {
-            $match{$key} /= $words;
-        }
+	local $_;
+        $_ /= $words foreach values(%match);
     }
 
-    return wantarray ? %match : \%match;
+    return (wantarray ? %match : \%match);
 }
 
 # ----------------------
 # Subroutine sync($self)
 # ----------------------
-sub sync {
+sub sync($) {
     my $self = shift;
 
-    foreach my $num ($self->{submin}..$self->{submax}) {
-        $self->{subobj}[$num]->sync();
+    foreach my $num ($self->{submin} .. $self->{submax}) {
+        $self->{subobj}[$num]->sync;
     }
 
-    return $self->{obj}->sync() if $self->{obj};
+    return $self->{obj}->sync if $self->{obj};
 }
 
 # ------------------------------------------
 # Subroutine setvar($self, $varname, $value)
 # ------------------------------------------
-sub setvar {
+sub setvar($$$) {
     my $self = shift;
 
     die "Cannot modify a read-only database"
@@ -532,16 +531,16 @@ sub setvar {
 # ----------------------------------
 # Subroutine getvar($self, $varname)
 # ----------------------------------
-sub getvar {
+sub getvar($$) {
     my $self = shift;
 
     return $self->{db}{"-$_[0]"};
 }
 
-# ----------------------------------------------
-# Subroutine getvars($self, $partial, $wanthash)
-# ----------------------------------------------
-sub getvars {
+# ------------------------------------------------
+# Subroutine getvars($self, $partial, [$wanthash])
+# ------------------------------------------------
+sub getvars($$;$) {
     my ($self, $partial, $flag) = @_;
     my ($value, $status, @keys);
     my $key = "-$partial";
@@ -559,7 +558,7 @@ sub getvars {
 # ------------------------------
 # Subroutine getkey($self, $seq)
 # ------------------------------
-sub getkey {
+sub getkey($$) {
     my $self = shift;
 
     return $self->{db}{"!$_[0]"};
@@ -568,7 +567,7 @@ sub getkey {
 # -------------------------------
 # Subroutine findkey($self, $key)
 # -------------------------------
-sub findkey {
+sub findkey($$) {
     my ($self, $key) = @_;
     my ($v, $status) = '!';
     my $k = '!';
@@ -585,7 +584,7 @@ sub findkey {
 # ------------------------------
 # Subroutine delete($self, $key)
 # ------------------------------
-sub delete {
+sub delete($$) {
     my ($self, $key) = @_;
 
     $self->delkey($self->findkey($key));
@@ -594,7 +593,7 @@ sub delete {
 # ------------------------------
 # Subroutine delkey($self, $key)
 # ------------------------------
-sub delkey {
+sub delkey($$) {
     my $self = shift;
 
     delete $self->{db}{"!$_[0]"};
@@ -605,7 +604,7 @@ sub delkey {
 # ------------------------------------
 # Subroutine getkeys($self, $wanthash)
 # ------------------------------------
-sub getkeys {
+sub getkeys($$) {
     my ($self, $flag) = @_;
     my ($v, $status, @keys);
     my $k = '!';
@@ -623,15 +622,17 @@ sub getkeys {
 # ------------------------------------------
 # Subroutine _store($self, $varname, $value)
 # ------------------------------------------
-sub _store {
+sub _store($$$) {
     my $self = shift;
 
-    if (DB_VERSION >= 2.0) {
+    if (DB_VERSION >= 2) {
         my ($k, $v) = ($_[0], undef);
         my $status = $self->{obj}->seq($k, $v, R_CURSOR);
 
-        $self->{obj}->put($_[0], $_[1], ($k eq $_[0] and $v) ?
-                                          R_CURSOR : 0);
+        $self->{obj}->put(
+	    $_[0], $_[1], ($k eq $_[0] and $v) ?  R_CURSOR : 0
+	);
+
         return $v;
     }
     else {
@@ -651,12 +652,12 @@ sub _store {
 DESTROY {
     my $self = shift;
 
-    $self->sync() if UNIVERSAL::can($self, 'sync');
+    $self->sync if UNIVERSAL::can($self, 'sync');
 
     undef $self->{obj};
     undef $self->{db};
 
-    foreach my $num (0..$self->{subcount} - 1) {
+    foreach my $num (0 .. $self->{subcount} - 1) {
         undef $self->{subobj}[$num];
         undef $self->{subdb}[$num];
     }
@@ -666,15 +667,19 @@ DESTROY {
 
 __END__
 
+=head1 SEE ALSO
+
+L<fzindex>, L<fzquery>, L<OurNet::ChatBot>
+ 
 =head1 AUTHORS
  
-Autrijus Tang E<lt>autrijus@autrijus.org>,
-Chia-Liang Kao E<lt>clkao@clkao.org>.
+Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>,
+Chia-Liang Kao E<lt>clkao@clkao.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>,
-                  Chia-Liang Kao E<lt>clkao@clkao.org>.
+Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>,
+                  Chia-Liang Kao E<lt>clkao@clkao.orgE<gt>.
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.

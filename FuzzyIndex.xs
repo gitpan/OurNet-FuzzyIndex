@@ -1,23 +1,24 @@
+/* $File: //depot/OurNet-FuzzyIndex/FuzzyIndex.pm $ $Author: autrijus $
+   $Revision: #6 $ $Change: 2149 $ $DateTime: 2001/10/18 21:43:43 $ */
+
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-#include "avltree.c"
+#include "ppport.h"
 #include "parse.c"
 
-static SV *  _cb_fn      = (SV*)NULL;
-static SV *  _cb_arg1    = (SV*)NULL;
-static SV *  _cb_arg2    = (SV*)NULL;
-static SV *  _cb_freq    = (SV*)NULL;
-static SV *  _cb_obj     = (SV*)NULL;
-static HV *  _cb_hash    = (HV*)NULL;
-static UV    _cb_weight  = 0;
-static UV    _cb_mod     = 0;
-static UV    _cb_min     = 0;
-static UV    _cb_max     = 0;
+static SV * _cb_fn      = (SV*)NULL;	/* the callback function */
+static SV * _cb_arg1    = (SV*)NULL;	/* first parsed word */
+static SV * _cb_arg2    = (SV*)NULL;	/* second parsed word */ 
+static SV * _cb_freq    = (SV*)NULL;	/* the occurrence count */
+static SV * _cb_obj     = (SV*)NULL;	/* DB_File object */
+static HV * _cb_hash    = (HV*)NULL;	/* the stroage hash */
+static UV   _cb_weight  = 0;
+static UV   _cb_mod     = 0;
+static UV   _cb_min     = 0;
+static UV   _cb_max     = 0;
 
-#ifndef newSVuv
-#define newSVuv newSViv /* XXX: 5.005 has no UV support */
-#endif
+/* Parsing handlers */
 
 static void
 hash_cb(key, keylen, freq)
@@ -37,7 +38,7 @@ unsigned int freq;
     freq *= _cb_weight;
     freq += SvUV(hv_fetch(_cb_hash, key, (U32)keylen, 1)[0]);
 
-    hv_store(_cb_hash, key, (U32)keylen, newSVuv(freq > 0xa3 ? 0xa3 : freq), 0);
+    hv_store(_cb_hash, key, (U32)keylen, newSVuv(freq > MAXFREQ ? MAXFREQ : freq), 0);
 }
 
 static void
@@ -47,8 +48,9 @@ char * keylen;
 unsigned int freq;
 {
     if ((((unsigned int)key[1] % _cb_mod) >= _cb_min) &&
-        (((unsigned int)key[1] % _cb_mod) <= _cb_max))
-    hv_store(_cb_hash, key, (U32)keylen, newSVuv(freq), 0);
+        (((unsigned int)key[1] % _cb_mod) <= _cb_max)) {
+	hv_store(_cb_hash, key, (U32)keylen, newSVuv(freq), 0);
+    }
 }
 
 static void
@@ -61,10 +63,11 @@ unsigned int freq;
         (((unsigned int)key[1] % _cb_mod) <= _cb_max)) {
         freq *= _cb_weight;
         freq += SvUV(hv_fetch(_cb_hash, key, (U32)keylen, 1)[0]);
-        hv_store(_cb_hash, key, (U32)keylen, newSVuv(freq > 0xa3 ? 0xa3 : freq), 0);
+        hv_store(_cb_hash, key, (U32)keylen, newSVuv(freq > MAXFREQ ? MAXFREQ : freq), 0);
     }
 }
 
+/* Insertion handlers */
 
 static void
 insert_cb(arg1, arg2, arg2len)
@@ -83,10 +86,6 @@ unsigned int arg2len;
         PUSHs(_cb_obj);
         PUSHs(_cb_arg1);
         PUSHs(_cb_arg2);
-        /*
-        PUSHs(sv_2mortal(newSVpv(arg1, 0)));
-        PUSHs(sv_2mortal(newSVpv(arg2, arg2len)));
-        */
 
         PUTBACK ;
         /* Call the Perl sub to process the callback */
@@ -121,6 +120,7 @@ unsigned int arg2len;
     }
 }
 
+/* User-defined callback handlers */
 
 static void
 delim_cb(arg1, arg2, arg2len)
@@ -140,7 +140,6 @@ unsigned int arg2len;
         PUSHs(_cb_arg2);
 
         PUTBACK ;
-
         /* Call the Perl sub to process the callback */
         perl_call_sv(_cb_fn, G_DISCARD) ;
 
@@ -167,15 +166,13 @@ unsigned int arg2len;
         PUTBACK ;
 }
 
-
 static void
 pair_cb(key, val, freq)
-char  * key;
-char  * val;
+char * key;
+char * val;
 unsigned int freq;
 {
     dSP ;
-
         PUSHMARK(SP) ;
 
         EXTEND(SP, 3);
@@ -194,20 +191,25 @@ unsigned int freq;
         perl_call_sv(_cb_fn, G_DISCARD) ;
 }
 
+/* The XS Portion */
+
 MODULE = OurNet::FuzzyIndex		PACKAGE = OurNet::FuzzyIndex
 PROTOTYPES: ENABLE
 
 void
 _parse_d(strref, seed, fn)
-	SV   *  strref
-	char *  seed
+    SV   *  strref
+    char *  seed
     SV   *  fn
+
   CODE:
     /* Remember the Perl sub */
-    if (_cb_fn == (SV*)NULL)
+    if (_cb_fn == (SV*)NULL) {
         _cb_fn = newSVsv(fn);
-    else
+    }
+    else {
         SvSetSV(_cb_fn, fn);
+    }
 
     if (_cb_arg1 == (SV*)NULL) {
         _cb_arg1 = newSVpv("", 0);
@@ -220,9 +222,10 @@ _parse_d(strref, seed, fn)
 
 void
 _parse_q(strref, seed, fn)
-	SV   *  strref
-	char *  seed
+    SV   *  strref
+    char *  seed
     SV   *  fn
+
   CODE:
     query = 1;
 
@@ -244,8 +247,9 @@ _parse_q(strref, seed, fn)
 
 void
 _parse_p(strref, fn)
-	SV   *  strref
+    SV   *  strref
     SV   *  fn
+
   CODE:
     /* Remember the Perl sub */
     if (_cb_fn == (SV*)NULL)
@@ -268,12 +272,12 @@ _parse_p(strref, fn)
 
 void
 _parse(strref, hashref, weight, mod, min, max)
-	SV   *  strref
-	SV   *  hashref
-	IV      weight
-	IV      mod
-	IV      min
-	IV      max
+    SV   *  strref
+    SV   *  hashref
+    IV      weight
+    IV      mod
+    IV      min
+    IV      max
 
   CODE:
     _cb_weight = weight ? (UV)weight : 1;
@@ -287,17 +291,29 @@ _parse(strref, hashref, weight, mod, min, max)
     if (SvROK(hashref) && SvTYPE(SvRV(hashref)) == SVt_PVHV) {
         /* complex case */
         _cb_hash = (HV*)SvRV(hashref);
-        parse_word(SvPVX(SvRV(strref)), mod ? (PARSE_CB *)hashim_cb : (PARSE_CB *)hashi_cb );
+        parse_word(
+	    SvPVX(SvRV(strref)),
+	    mod ? (PARSE_CB *)hashim_cb
+		: (PARSE_CB *)hashi_cb
+	);
     }
     else if (_cb_weight != 1) {
         /* complex case */
         sv_setsv(hashref, newRV_inc((struct sv *)(_cb_hash = newHV())));
-        parse_word(SvPVX(SvRV(strref)), mod ? (PARSE_CB *)hashim_cb : (PARSE_CB *)hashi_cb );
+        parse_word(
+	    SvPVX(SvRV(strref)),
+	    mod ? (PARSE_CB *)hashim_cb
+		: (PARSE_CB *)hashi_cb
+	);
     }
     else {
         /* simple case */
         sv_setsv(hashref, newRV_inc((struct sv *)(_cb_hash = newHV())));
-        parse_word(SvPVX(SvRV(strref)), mod ? (PARSE_CB *)hashm_cb : (PARSE_CB *)hash_cb );
+        parse_word(
+	    SvPVX(SvRV(strref)),
+	    mod ? (PARSE_CB *)hashm_cb
+		: (PARSE_CB *)hash_cb
+	);
     }
 
   OUTPUT:
@@ -305,12 +321,12 @@ _parse(strref, hashref, weight, mod, min, max)
 
 void
 _insert(strref, seed, objref, mod, min, max)
-	SV   *  strref
-	char *  seed
-	SV   *  objref
-	IV      mod
-	IV      min
-	IV      max
+    SV   *  strref
+    char *  seed
+    SV   *  objref
+    IV      mod
+    IV      min
+    IV      max
 
   CODE:
     /* Remember the Perl sub */
@@ -326,10 +342,17 @@ _insert(strref, seed, objref, mod, min, max)
         _cb_arg2 = newSVpv("", 0);
     }
 
-    if (_cb_obj == (SV*)NULL)
+    if (_cb_obj == (SV*)NULL) {
         _cb_obj = newSVsv(objref);
-    else
+    }
+    else {
         sv_setsv_mg(_cb_obj, objref);
+    }
 
     /* register the callback with the external library */
-    parse_delim(SvPVX(SvRV(strref)), seed, mod ? (PARSE_CB *)insertm_cb : (PARSE_CB *)insert_cb);
+    parse_delim(
+	SvPVX(SvRV(strref)),
+	seed,
+	mod ? (PARSE_CB *)insertm_cb
+	    : (PARSE_CB *)insert_cb
+    );

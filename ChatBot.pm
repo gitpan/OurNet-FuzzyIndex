@@ -1,10 +1,10 @@
 # $File: //depot/OurNet-FuzzyIndex/ChatBot.pm $ $Author: autrijus $
-# $Revision: #5 $ $Change: 2149 $ $DateTime: 2001/10/18 21:43:43 $
+# $Revision: #6 $ $Change: 2743 $ $DateTime: 2001/12/29 06:41:00 $
 
 package OurNet::ChatBot;
 require 5.005;
 
-$OurNet::ChatBot::VERSION = '1.22';
+$OurNet::ChatBot::VERSION = '1.23';
 
 use strict;
 use OurNet::FuzzyIndex;
@@ -52,7 +52,10 @@ the front-end program could prevent duplicate responses.
 
 =head1 CAVEATS
 
-The nextone flag-property is implemented badly.
+The B<nextone> flag-property is implemented badly. It's supposed to
+tweak the behaviour so it allows a more sequencial follow-up to a
+training material based on real dialogs. See the C<__DATA__> section
+in F<Makefile.PL> for an example.
 
 =head1 METHODS
 
@@ -123,7 +126,6 @@ sub addentry {
     return unless $self->{writable};
 
     $self->{db}->insert($content, defined($trigger) ? $trigger : $content);
-    print ".";
 }
 
 =head2 sync($self)
@@ -230,11 +232,11 @@ L<OurNet::FuzzyIndex>
 
 =head1 AUTHORS
 
-Autrijus Tang E<lt>autrijus@autrijus.org>
+Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>.
+Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.

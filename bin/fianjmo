@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 # $File: //depot/OurNet-FuzzyIndex/bin/fianjmo $ $Author: autrijus $
-# $Revision: #3 $ $Change: 2257 $ $DateTime: 2001/11/03 12:49:08 $
+# $Revision: #4 $ $Change: 2743 $ $DateTime: 2001/12/29 06:41:00 $
 
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 =head1 NAME
 
@@ -32,15 +32,17 @@ my $bot = eval { OurNet::ChatBot->new(
     'fianjmo.'.($ARGV[0] ? "$ARGV[0]." : '').'db' 
 )};
 
+$bot->{nextone}++;
+
 if ($@ or !$bot->{db}{idxcount}) {
-    die "No database found. You have to build it with 'make test'.\n";
+    die "No database found. ($@)\n";
 }
 
 print "*** Joined channel #fianjmo. Press Ctrl-D to quit.\n";
 print '['.($ENV{USER} || 'user').'] ';
 
 while (<STDIN>) {
-    print '<fianjmo> '.($bot->input($_) || '...')."\n";
+    print '<fianjmo> '.($bot->input($_) || '請說中文。')."\n";
     print '['.($ENV{USER} || 'user').'] ';
 }
 

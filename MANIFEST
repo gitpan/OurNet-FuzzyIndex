@@ -8,8 +8,12 @@ FuzzyIndex.xs
 FuzzyIndex.pm
 Makefile.PL
 parse.c
+ppport.h
 t/FuzzyIndex.t
 t/Index-ChatBot.t
 bin/fzquery
 bin/fzindex
 bin/fianjmo
+PerlCtrl/FuzzyIndex.pl
+PerlCtrl/FuzzyIndex.vbs
+PerlCtrl/Makefile
