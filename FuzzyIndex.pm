@@ -1,7 +1,10 @@
+# $File: //depot/OurNet-FuzzyIndex/FuzzyIndex.pm $ $Author: autrijus $
+# $Revision: #6 $ $Change: 2149 $ $DateTime: 2001/10/18 21:43:43 $
+
 package OurNet::FuzzyIndex;
 require 5.005;
 
-$OurNet::FuzzyIndex::VERSION = '1.52';
+$OurNet::FuzzyIndex::VERSION = '1.53';
 
 use strict;
 use integer;
@@ -62,35 +65,46 @@ OurNet::FuzzyIndex - Inverted search for double-byte characters
 
 =head1 DESCRIPTION
 
-OurNet::FuzzyIndex implements a simple consecutive-letter indexing
+B<OurNet::FuzzyIndex> implements a simple consecutive-letter indexing
 mechanism specifically designed for multi-byte encoding maps, e.g.
 big-5 or utf8.
 
-It uses DB_File to create an associative mapping from each character
-to its consecutive one, utilizing DB_BTREE's duplicate key feature
+It uses B<DB_File> to create an associative mapping from each character
+to its consecutive one, utilizing B<DB_BTREE>'s duplicate key feature
 to speed up the query time. Its scoring algorithm is also geared to
 reduce redundant word's impact on the query's result.
 
+This module also supports a distributed databases option, which
+optimizes each query to access only a small portion of database.
+
 Although this module currently only supports big-5 and latin-1 encodings
-internally, you could override the C<parse.c> module for extensions,
+internally, you could override the F<parse.c> module for extensions,
 or add your own translation maps.
 
 =head1 KNOWN ISSUES
 
-The C<query()> function uses a time-consuming callback function _parse_q
-to parse the query string; it is expected to be changed to a simple
-function that returns the whole processed list. (Fortunately, most
-query strings won't be long enough to cause significant difference.)
+The C<query()> function uses a time-consuming callback function
+C<_parse_q()> to parse the query string; it is expected to be changed
+to a simple function that returns the whole processed list. (Fortunately,
+most query strings won't be long enough to cause significant difference.)
 
-The MATCH_EXACT flag is misleading; FuzzyIndex couldn't tell if a query
-matches the conetnt exactly from the info stored in the index file
+The B<MATCH_EXACT> flag is misleading; FuzzyIndex couldn't tell if a
+query matches the content exactly from the info stored in the index file
 alone. You are encouraged to write your own grep-like post filter.
 
 =head1 TODO
 
-* Internal handling of locale/unicode mappings
-* Boolean / selective search using combined MATCH_* flags
-* Fix bugs concerning sub_dbs
+=item *
+
+Internal handling of locale/unicode mappings
+
+=item *
+
+Boolean / selective search using combined MATCH_* flags
+
+=item *
+
+Fix bugs concerning sub_dbs
 
 =cut
 
@@ -152,13 +166,13 @@ sub new {
     $DB_BTREE->{flags}     = R_DUP;
 
     $self->{obj} = tie(
-		%{$self->{db}},
-		'DB_File',
-		$self->{dbfile},
-		$self->{flag},
+	%{$self->{db}},
+	'DB_File',
+	$self->{dbfile},
+	$self->{flag},
         $self->{flag} ? 0640 : 0440,
         $DB_BTREE
-	) or die "Cannot open main DB: $self->{dbfile}";
+    ) or die "Cannot open main DB: $self->{dbfile}";
 
     if (exists $self->{db}{_subcount}) {
         $self->{subcount} = $self->{db}{_subcount};
@@ -653,14 +667,18 @@ DESTROY {
 __END__
 
 =head1 AUTHORS
-
-Autrijus Tang E<lt>autrijus@autrijus.org>
+ 
+Autrijus Tang E<lt>autrijus@autrijus.org>,
+Chia-Liang Kao E<lt>clkao@clkao.org>.
 
 =head1 COPYRIGHT
 
-Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>.
+Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>,
+                  Chia-Liang Kao E<lt>clkao@clkao.org>.
 
-All rights reserved.  You can redistribute and/or modify
-this module under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or 
+modify it under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =cut

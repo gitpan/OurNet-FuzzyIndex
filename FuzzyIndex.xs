@@ -15,6 +15,10 @@ static UV    _cb_mod     = 0;
 static UV    _cb_min     = 0;
 static UV    _cb_max     = 0;
 
+#ifndef newSVuv
+#define newSVuv newSViv /* XXX: 5.005 has no UV support */
+#endif
+
 static void
 hash_cb(key, keylen, freq)
 char * key;
@@ -86,7 +90,7 @@ unsigned int arg2len;
 
         PUTBACK ;
         /* Call the Perl sub to process the callback */
-        call_method("DB_File::put", G_DISCARD) ;
+        perl_call_method("DB_File::put", G_DISCARD) ;
 
 }
 

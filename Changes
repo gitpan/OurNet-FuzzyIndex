@@ -1,34 +1,71 @@
-Revision history for Perl extension OurNet::FuzzyIndex.
-
-[v1.5] 
-
-Change 883 on 2001/02/27 by autrijus@autribsd
-
-           * branch out for seperate release 
-
-[v1.4]
-
-Change 525 on 2001/03/02 by autrijus@autricvic
-
-	       * leading up to MELIX release
-
-Change 484 on 2001/02/19 by autrijus@autricvic
-
-	        * fresh integration leading to alpha4.
-
-Change 373 on 2001/01/18 by autrijus@autribsd
-
-	       * kaorc fix, and integration
-
-Change 357 on 2001/01/15 by autrijus@autribsd
-
-	 this be alpha-2 release.
-
-Change 352 on 2001/01/13 by autrijus@autribsd
-
-	      * integrate back to public view
-
-Change 267 on 2000/12/10 by autrijus@autrihome
-
-	virgin import for 1.4 candidate
-
+____________________________________________________________________________
+[   922] By: autrijus@autribsd                     on 2001/06/06 05:15:00
+	Log: * a very weird workaround.
+       Path: t
+	   ! Index-ChatBot.t
+____________________________________________________________________________
+[   921] By: autrijus@autribsd                     on 2001/06/06 05:07:26
+	Log: * the actualbundling of fianjmo package.
+       Path: bin
+	   ! fianjmo
+       Path: t
+	   ! Index-ChatBot.t
+____________________________________________________________________________
+[   920] By: autrijus@autribsd                     on 2001/06/06 04:49:16
+	Log: * Incoporating fianjmo into FuzzyIndex 1.52
+       Path: bin
+	   + fianjmo
+	   ! fzindex fzquery
+       Path: .
+	   + ChatBot.pm
+	   ! FuzzyIndex.pm MANIFEST Makefile.PL
+       Path: t
+	   + Index-ChatBot.t
+	   ! FuzzyIndex.t
+____________________________________________________________________________
+[   911] By: autrijus@autricvic                    on 2001/06/06 00:46:06
+	Log: * patch toward 1.51
+       Path: .
+	   ! FuzzyIndex.pm MANIFEST
+____________________________________________________________________________
+[   896] By: autrijus@autribsd                     on 2001/06/02 05:35:07
+	Log: * Makefile.PL typo
+       Path: .
+	   ! Makefile.PL
+____________________________________________________________________________
+[   894] By: autrijus@autribsd                     on 2001/06/02 05:10:17
+	Log: * leading up for 1.5 OurNet::* release
+       Path: .
+	   ! Changes FuzzyIndex.pm MANIFEST README
+	   - TODO
+____________________________________________________________________________
+[   893] By: autrijus@autribsd                     on 2001/06/02 04:58:28
+	Log: * OurNet::BBSAgent branch.
+       Path: .
+	   ! MANIFEST
+____________________________________________________________________________
+[   885] By: autrijus@autribsd                     on 2001/06/02 03:57:47
+	Log: * missing changes and manifest.
+       Path: .
+	   + Changes
+	   ! MANIFEST
+____________________________________________________________________________
+[   884] By: autrijus@autribsd                     on 2001/06/02 03:56:00
+	Log: * missing TODO
+       Path: .
+	   + TODO
+____________________________________________________________________________
+[   883] By: autrijus@autribsd                     on 2001/06/02 03:55:35
+	Log: * branch out for seperate release
+       Path: bin
+	   + fzindex fzquery
+       Path: .
+	   FuzzyIndex.xs avltree.c avltree.h parse.c
+	   + FuzzyIndex.pm Makefile.PL README
+       Path: t
+	   + FuzzyIndex.t
+____________________________________________________________________________
+[   882] By: autrijus@autribsd                     on 2001/06/02 03:22:34
+	Log: * branch back into OurNet-FuzzyIndex.
+       Path: .
+	   + MANIFEST

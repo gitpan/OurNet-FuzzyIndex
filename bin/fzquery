@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
+# $File: //depot/OurNet-FuzzyIndex/bin/fzquery $ $Author: autrijus $
+# $Revision: #3 $ $Change: 2257 $ $DateTime: 2001/11/03 12:49:08 $
 
-$VERSION = '1.52';
+$VERSION = '1.53';
 
 =head1 NAME
 
@@ -8,21 +10,25 @@ fzquery - FuzzyIndex query utility
 
 =head1 SYNOPSIS
 
-    % fzquery index.db "where could i find some books?" # from arg
-    % fzquery index.db << query.txt                     # from stdin
+B<fzquery> I<database> [ I<query> ]
+B<fzquery> I<database> << I<file>
 
 =head1 DESCRIPTION
 
-Just run fzquery at command line. The first argument is the db file
-to query from, remaining arguments being the query string. If no
-query was given, it will read from STDIN.
+Just run F<fzquery> at command line. The first argument is the Berkeley
+DB file to query from, remaining arguments being the query string. If no
+query was given, it will read from B<STDIN>.
+
+Example usages:
+
+    % fzquery index.db "where could i find some books?" # from arg
+    % fzquery index.db << query.txt                     # from stdin
 
 =cut
 
-use OurNet::FuzzyIndex '1.52';
+use OurNet::FuzzyIndex;
 
-my $idxfile = shift 
-    or die "Usage: $0 <indexfile> [query]\n";
+my $idxfile = shift or die "Usage: $0 <indexfile> [query]\n";
 
 die "Cannot read $idxfile\n" unless -r $idxfile;
 
@@ -34,8 +40,8 @@ $db = OurNet::FuzzyIndex->new($idxfile);
 my %result = $db->query(join(' ', @ARGV ? @ARGV : <>), MATCH_FUZZY);
 
 # Dump the results; note you have to call $db->getkey each time
-foreach my $idx (sort {$result{$b} <=> $result{$a}} keys(%result)) {
-    printf ("%5.1f%\t%s\n", $result{$idx}/10, $db->getkey($idx));
+foreach my $idx (sort { $result{$b} <=> $result{$a} } keys(%result)) {
+    printf("%5.1f%\t%s\n", $result{$idx} / 10, $db->getkey($idx));
 }
 
 1;
@@ -50,8 +56,9 @@ Autrijus Tang E<lt>autrijus@autrijus.org>
 
 Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>.
 
-All rights reserved.  You can redistribute and/or modify
-this module under the same terms as Perl itself.
+This program is free software; you can redistribute it and/or 
+modify it under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =cut
-
