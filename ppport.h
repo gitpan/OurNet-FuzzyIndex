@@ -1,5 +1,5 @@
-/* $File: //depot/OurNet-FuzzyIndex/ppport.h $ $Author: autrijus $
-   $Revision: #1 $ $Change: 2740 $ $DateTime: 2001/12/28 07:15:35 $ */
+/* $File: //depot/libOurNet/FuzzyIndex/ppport.h $ $Author: autrijus $
+   $Revision: #1 $ $Change: 1 $ $DateTime: 2002/06/11 15:35:12 $ */
 
 /* ppport.h -- Perl/Pollution/Portability Version 2.0002 
  *

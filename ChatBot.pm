@@ -1,10 +1,10 @@
-# $File: //depot/OurNet-FuzzyIndex/ChatBot.pm $ $Author: autrijus $
-# $Revision: #6 $ $Change: 2743 $ $DateTime: 2001/12/29 06:41:00 $
+# $File: //depot/libOurNet/FuzzyIndex/ChatBot.pm $ $Author: autrijus $
+# $Revision: #3 $ $Change: 3772 $ $DateTime: 2003/01/24 00:08:39 $
 
 package OurNet::ChatBot;
 require 5.005;
 
-$OurNet::ChatBot::VERSION = '1.23';
+$OurNet::ChatBot::VERSION = '1.24';
 
 use strict;
 use OurNet::FuzzyIndex;
@@ -35,7 +35,7 @@ OurNet::ChatBot - Context-free interactive Q&A engine
 
 The B<OurNet::ChatBot> module simulates a general-purpose,
 context-free, interactive chatter-bot using the B<OurNet::FuzzyIndex>
-engine.  It reads the file stored in F<ChatBot/> directory, parses
+engine.  It reads the file stored in a F<ChatBot/> directory, parses
 synonyms and random output settings, then return answers via the
 C<input()> method.
 
@@ -59,7 +59,7 @@ in F<Makefile.PL> for an example.
 
 =head1 METHODS
 
-=head2 new($class, $botname, $bot, [$writable])
+=head2 OurNet::ChatBot->new($botname, $bot, [$writable])
 
 Constructor method; reads bot name, bot database file, and
 writable flag as arguments. Returns a B<OurNet::ChatBot>
@@ -100,7 +100,7 @@ sub new {
     return $self;
 }
 
-=head2 addsyn($self, $skey, @syns)
+=head2 $self->addsyn($skey, @syns)
 
 Inserts new synonyms of the word C<$skey> into the bot database.
 
@@ -113,9 +113,9 @@ sub addsyn {
     push(@{$self->{synonyms}}, $skey || ' ', join('|', @_));
 }
 
-=head2 addentry($self, $content, [$trigger])
+=head2 $self->addentry($content, [$trigger])
 
-Inserts a response sentence to the chat-bot's corpus. The optional
+Inserts a response sentence to the ChatBot's corpus. The optional
 C<$trigger> variable indicates a B<cue> sentence to be used as
 index instead of C<$content>; this is useful in a Q & A context.
 
@@ -128,7 +128,7 @@ sub addentry {
     $self->{db}->insert($content, defined($trigger) ? $trigger : $content);
 }
 
-=head2 sync($self)
+=head2 $self->sync()
 
 Writes back to the database file.
 
@@ -144,7 +144,7 @@ sub sync {
     $self->{db}->sync;
 }
 
-=head2 input($self, $say, [@avoid])
+=head2 $self->input($say, [@avoid])
 
 Process the query sentence in C<$say>, and returns the chat-bot's
 response. The chunk IDs specified in C<@avoid> will not be used.
@@ -179,10 +179,12 @@ sub input {
     return $self->{rndouts}[ int(rand() * ($#{$self->{rndouts}} + 1)) ];
 }
 
-=head2 convert($self, $data)
+=head2 $self->convert($data)
 
 Converts the legacy database in B<Chatbot::Amber> format to
-a database file.
+a database file.  This function is obsoleted, unsupported,
+and will probably go away at some point in favor of some
+XML or YAML-based format.
 
 =cut
 
@@ -236,7 +238,7 @@ Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
+Copyright 2001, 2003 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.

@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
-# $File: //depot/OurNet-FuzzyIndex/bin/fianjmo $ $Author: autrijus $
-# $Revision: #5 $ $Change: 2786 $ $DateTime: 2002/01/07 20:40:11 $
+# $File: //depot/libOurNet/FuzzyIndex/bin/fianjmo $ $Author: autrijus $
+# $Revision: #1 $ $Change: 1 $ $DateTime: 2002/06/11 15:35:12 $
 
-$VERSION = '1.02';
+$VERSION = '1.03';
 
 =head1 NAME
 
@@ -43,8 +43,8 @@ print '['.($ENV{USER} || 'user').'] ';
 
 while (<STDIN>) {
     exit if /^\/b(?:ye)?/;
-    next if /^[\s\t]*$/;
-    print '<fianjmo> '.($bot->input($_) || '請說中文。')."\n";
+    print '<fianjmo> '.($bot->input($_) || '請說中文。')."\n"
+	unless /^[\s\t]*$/;
     print '['.($ENV{USER} || 'user').'] ';
 }
 

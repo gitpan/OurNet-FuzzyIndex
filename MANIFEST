@@ -3,8 +3,10 @@ ChatBot.pm
 FuzzyIndex.pm
 FuzzyIndex.xs
 MANIFEST
+MANIFEST.SKIP
 Makefile.PL
 README
+SIGNATURE
 avltree.c
 avltree.h
 bin/fianjmo

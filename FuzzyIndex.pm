@@ -1,10 +1,10 @@
-# $File: //depot/OurNet-FuzzyIndex/FuzzyIndex.pm $ $Author: autrijus $
-# $Revision: #9 $ $Change: 2787 $ $DateTime: 2002/01/07 20:42:26 $
+# $File: //depot/libOurNet/FuzzyIndex/FuzzyIndex.pm $ $Author: autrijus $
+# $Revision: #2 $ $Change: 3772 $ $DateTime: 2003/01/24 00:08:39 $
 
 package OurNet::FuzzyIndex;
-require 5.000;
+require 5.004;
 
-$OurNet::FuzzyIndex::VERSION = '1.55';
+$OurNet::FuzzyIndex::VERSION = '1.60';
 
 use strict;
 use integer;
@@ -77,41 +77,18 @@ reduce redundant word's impact on the query's result.
 This module also supports a distributed databases option, which
 optimizes each query to access only a small portion of database.
 
-Although this module currently only supports big-5 and latin-1 encodings
+Although this module currently only supports the Big5 encoding
 internally, you could override the F<parse.c> module for extensions,
 or add your own translation maps.
 
-=head1 KNOWN ISSUES
-
-The C<query()> function uses a time-consuming callback function
-C<_parse_q()> to parse the query string; it is expected to be changed
-to a simple function that returns the whole processed list. (Fortunately,
-most query strings won't be long enough to cause significant difference.)
-
-The B<MATCH_EXACT> flag is misleading; FuzzyIndex couldn't tell if a
-query matches the content exactly from the info stored in the index file
-alone. You are encouraged to write your own grep-like post filter.
-
-=head1 TODO
-
-=item *
-
-Internal handling of locale/unicode mappings
-
-=item *
-
-Boolean / selective search using combined MATCH_* flags
-
-=item *
-
-Fix bugs concerning sub_dbs
+=head1 METHODS
 
 =cut
 
 # ---------------
 # Variable Fields
 # ---------------
-use fields qw/dbfile	flag	deleted
+use fields qw/dbfile   flag	deleted
 	      idxcount subcount submod   submin   submax
 	      obj      db       subobj   subdb/;
 
@@ -143,9 +120,13 @@ use vars qw/$MATCH_EXACT $MATCH_FUZZY $MATCH_PART $MATCH_NOT @EXPORT/;
 $MATCH_EXACT = MATCH_EXACT; $MATCH_FUZZY = MATCH_FUZZY;
 $MATCH_PART  = MATCH_PART;  $MATCH_NOT   = MATCH_NOT;
 
-# ------------------------------------------------------------------------
-# Subroutine new($dbfile, $pagesize, $cachesize, $split, $submin, $submax)
-# ------------------------------------------------------------------------
+=head2 OurNet::FuzzyIndex->new($dbfile,
+[ $pagesize, $cachesize, $split, $submin, $submax ])
+
+The constructor method; normally only needs the first argument.
+
+=cut
+
 sub new($;$$$$$) {
     my $class = shift;
     my $self  = ($] > 5.00562) ? fields::new($class)
@@ -216,27 +197,18 @@ sub subval() {
     return @{$self}{qw/submod submin submax/};
 }
 
-# ------------------------------------------------------------
-# Subroutine parse_xs([$self], $content, [$weight], [\%words])
-# ------------------------------------------------------------
-sub parse_xs($;$$$) {
-    my $self    = UNIVERSAL::isa($_[0], __PACKAGE__) ? shift : undef;
-    my $wordref = ref($_[-1]) ? pop : 0;
+=head2 $self->parse($content, [$weight], [\%words])
 
-    local $^W; # no warnings, thank you
+Parses C<$content> into two-word chunks, stored as keys in C<%words>,
+with values equal to their occurrence counts multipled by C<$weight>
+(defaults to 1).  May also be invoked as a normal function without
+C<$self>.
 
-    _parse(
-        \$_[0], $wordref, ($_[1] || 1),
-        ((defined $self) ? $self->subval
-                         : (0, 0, 0))
-    );
+Returns the hash (or hash reference in scalar context) representing
+the parsed words and frequency.
 
-    return wantarray ? %{$wordref} : $wordref;
-}
+=cut
 
-# ------------------------------------------------------
-# Subroutine parse([$self], $content, $weight, [%words])
-# ------------------------------------------------------
 sub parse($$;$$) {
     my $self    = UNIVERSAL::isa($_[0], __PACKAGE__) ? shift : undef;
     my $weight  = $_[1] || 1;
@@ -274,9 +246,37 @@ sub parse($$;$$) {
     return wantarray ? %words : \%words;
 }
 
-# ----------------------------------------------------
-# Subroutine insert($self, $key, [$content | \%words])
-# ----------------------------------------------------
+=head2 $self->parse_xs($content, [$weight], [\%words])
+
+Same as C<parse()>, but implemented in XS.
+
+=cut
+
+sub parse_xs($;$$$) {
+    my $self    = UNIVERSAL::isa($_[0], __PACKAGE__) ? shift : undef;
+    my $wordref = ref($_[-1]) ? pop : 0;
+
+    local $^W; # no warnings, thank you
+
+    _parse(
+        \$_[0], $wordref, ($_[1] || 1),
+        ((defined $self) ? $self->subval
+                         : (0, 0, 0))
+    );
+
+    return wantarray ? %{$wordref} : $wordref;
+}
+
+=head2 $self->insert($key, [$content | \%words])
+
+Insert an entry, stored in C<$content> as pre-parsed text, or in
+C<%words> as a parsed hash.  The C<$key> is the name of the entry
+in the database.
+
+Returns the database ID of the newly created entry.
+
+=cut
+
 sub insert($$$) {
     my ($self, $key) = splice(@_, 0, 2);
     local $^W; # no warnings, thank you
@@ -356,9 +356,42 @@ sub insert($$$) {
     return $id;
 }
 
-# -------------------------------------------------
-# Subroutine query($self, $query, $flag, [\%match])
-# -------------------------------------------------
+=head2 $self->query($query, $flag, [\%match])
+
+Perform a query on the database represented by C<$self>; C<$query>
+contains a free-form query string.  The type of query is specified by
+C<$flag>, as one of the constants below:
+
+=over 4
+
+=item MATCH_FUZZY (default)
+
+Match the query string with fuzzy scoring heuristics.
+
+=item MATCH_EXACT
+
+Match the exact string C<$query>.
+
+=item MATCH_PART
+
+Match each individual characters fuzzily, in addition to normal
+fuzzy matching.
+
+=item MATCH_NOT
+
+Only matches entries that has none of the phrases in the query string.
+
+=back
+
+The C<%match> hash, if specified, contains the result of a previous
+C<query()>, and indicates that this is a subquery limited by the
+previous search.
+
+Returns the hash (or hash reference in scalar context) containing
+the matched entry IDs as keys, and their scores as values.
+
+=cut
+
 sub query($$;$$) {
     my $self  = shift;
     my $flag  = $_[1];
@@ -503,9 +536,12 @@ sub query($$;$$) {
     return (wantarray ? %match : \%match);
 }
 
-# ----------------------
-# Subroutine sync($self)
-# ----------------------
+=head2 $self->sync()
+
+Synchronize the in-memory records into the disk.
+
+=cut
+
 sub sync($) {
     my $self = shift;
 
@@ -516,9 +552,13 @@ sub sync($) {
     return $self->{obj}->sync if $self->{obj};
 }
 
-# ------------------------------------------
-# Subroutine setvar($self, $varname, $value)
-# ------------------------------------------
+=head2 $self->setvar($varname, $value)
+
+Sets a user-defined variable in the database.  Such variables does not
+affect operations on the database.
+
+=cut
+
 sub setvar($$$) {
     my $self = shift;
 
@@ -528,18 +568,27 @@ sub setvar($$$) {
     return $self->_store("-$_[0]", $_[1]);
 }
 
-# ----------------------------------
-# Subroutine getvar($self, $varname)
-# ----------------------------------
+=head2 $self->getvar($varname)
+
+Returns the value of a previously set variable, or C<undef> if no such
+variable exists.
+
+=cut
+
 sub getvar($$) {
     my $self = shift;
 
     return $self->{db}{"-$_[0]"};
 }
 
-# ------------------------------------------------
-# Subroutine getvars($self, $partial, [$wanthash])
-# ------------------------------------------------
+=head2 $self->getvars($partial, [$wanthash])
+
+Get all variables beginning with C<$partial>; returns an array of the
+variable names, or a hash with the variable values as hash values if
+if C<$wanthash> is specified.
+
+=cut
+
 sub getvars($$;$) {
     my ($self, $partial, $flag) = @_;
     my ($value, $status, @keys);
@@ -555,18 +604,27 @@ sub getvars($$;$) {
     return @keys;
 }
 
-# ------------------------------
-# Subroutine getkey($self, $seq)
-# ------------------------------
+=head2 $self->getkey($seq)
+
+Returns the name of the entry with <$seq> as the ID, or C<undef> if
+there is no such entry.  Usually called after a C<query()> to fetch the
+matched entries.
+
+=cut
+
 sub getkey($$) {
     my $self = shift;
 
     return $self->{db}{"!$_[0]"};
 }
 
-# -------------------------------
-# Subroutine findkey($self, $key)
-# -------------------------------
+=head2 $self->findkey($key)
+
+Find the ID of the entry with the name C<$key>; the reverse operation of
+C<getkey()>.
+
+=cut
+
 sub findkey($$) {
     my ($self, $key) = @_;
     my ($v, $status) = '!';
@@ -581,8 +639,12 @@ sub findkey($$) {
     return;
 }
 
-# ------------------------------
-# Subroutine delete($self, $key)
+=head2 $self->delete($key)
+
+Delete the entry with name C<$key>.
+
+=cut 
+
 # ------------------------------
 sub delete($$) {
     my ($self, $key) = @_;
@@ -590,9 +652,13 @@ sub delete($$) {
     $self->delkey($self->findkey($key));
 }
 
-# ------------------------------
-# Subroutine delkey($self, $key)
-# ------------------------------
+=head2 $self->delkey($seq)
+
+Delete the entry with the ID C<$seq>.  This function's name is a bit of
+a misnomer; sorry about that.
+
+=cut
+
 sub delkey($$) {
     my $self = shift;
 
@@ -601,9 +667,13 @@ sub delkey($$) {
     $self->{deleted}{$_[0]} = '';
 }
 
-# ------------------------------------
-# Subroutine getkeys($self, $wanthash)
-# ------------------------------------
+=head2 $self->getkeys([$wanthash])
+
+Return all entry names as an array, or as a hash with their IDs as hash
+values if if C<$wanthash> is specified.
+
+=cut
+
 sub getkeys($$) {
     my ($self, $flag) = @_;
     my ($v, $status, @keys);
@@ -619,9 +689,13 @@ sub getkeys($$) {
     return @keys;
 }
 
-# ------------------------------------------
-# Subroutine _store($self, $varname, $value)
-# ------------------------------------------
+=head2 $self->_store($varname, $value)
+
+Private function to store an internal variable to the database.
+Do not call this directly.
+
+=cut
+
 sub _store($$$) {
     my $self = shift;
 
@@ -646,9 +720,6 @@ sub _store($$$) {
     }
 }
 
-# ---------------------
-# Destructor subroutine
-# ---------------------
 DESTROY {
     my $self = shift;
 
@@ -667,19 +738,52 @@ DESTROY {
 
 __END__
 
+=head1 CAVEATS
+
+The C<query()> function uses a time-consuming callback function
+C<_parse_q()> to parse the query string; it is expected to be changed
+to a simple function that returns the whole processed list. (Fortunately,
+most query strings won't be long enough to cause significant difference.)
+
+The B<MATCH_EXACT> flag is misleading; FuzzyIndex couldn't tell if a
+query matches the content exactly from the info stored in the index file
+alone. You are encouraged to write your own grep-like post filter.
+
+=head1 TODO
+
+=over 4
+
+=item *
+
+Internal handling of locale/unicode mappings
+
+=item *
+
+Boolean / selective search using combined MATCH_* flags
+
+=item *
+
+Fix bugs concerning sub_dbs, or deprecate them altogether
+
+=item *
+
+Use L<Lingua::ZH::TaBE> for better word-segmenting algorithms
+
+=back
+
 =head1 SEE ALSO
 
 L<fzindex>, L<fzquery>, L<OurNet::ChatBot>
- 
+
 =head1 AUTHORS
- 
+
 Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>,
 Chia-Liang Kao E<lt>clkao@clkao.orgE<gt>.
 
 =head1 COPYRIGHT
 
-Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>,
-                  Chia-Liang Kao E<lt>clkao@clkao.orgE<gt>.
+Copyright 2001, 2003 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>,
+			Chia-Liang Kao E<lt>clkao@clkao.orgE<gt>.
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.

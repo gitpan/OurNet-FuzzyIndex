@@ -1,5 +1,5 @@
-/* $File: //depot/OurNet-FuzzyIndex/FuzzyIndex.pm $ $Author: autrijus $
-   $Revision: #6 $ $Change: 2149 $ $DateTime: 2001/10/18 21:43:43 $ */
+/* $File: //depot/libOurNet/FuzzyIndex/FuzzyIndex.xs $ $Author: autrijus $
+   $Revision: #1 $ $Change: 1 $ $DateTime: 2002/06/11 15:35:12 $ */
 
 #include "EXTERN.h"
 #include "perl.h"

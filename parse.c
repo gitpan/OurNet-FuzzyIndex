@@ -1,5 +1,5 @@
-/* $File: //depot/OurNet-FuzzyIndex/parse.c $ $Author: autrijus $
-   $Revision: #4 $ $Change: 2789 $ $DateTime: 2002/01/07 20:44:42 $ */
+/* $File: //depot/libOurNet/FuzzyIndex/parse.c $ $Author: autrijus $
+   $Revision: #1 $ $Change: 1 $ $DateTime: 2002/06/11 15:35:12 $ */
 
 #include <stdio.h>
 #include <string.h>

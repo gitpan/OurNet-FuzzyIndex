@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
-# $File: //depot/OurNet-FuzzyIndex/bin/fzquery $ $Author: autrijus $
-# $Revision: #4 $ $Change: 2788 $ $DateTime: 2002/01/07 20:43:15 $
+# $File: //depot/libOurNet/FuzzyIndex/bin/fzquery $ $Author: autrijus $
+# $Revision: #1 $ $Change: 1 $ $DateTime: 2002/06/11 15:35:12 $
 
 $VERSION = '1.55';
 

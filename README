@@ -1,9 +1,8 @@
-# $File: //depot/OurNet-FuzzyIndex/README $ $Author: autrijus $
-# $Revision: #7 $ $Change: 2789 $ $DateTime: 2002/01/07 20:44:42 $
+# $File: //depot/libOurNet/FuzzyIndex/README $ $Author: autrijus $
+# $Revision: #2 $ $Change: 3771 $ $DateTime: 2003/01/24 00:07:20 $
 
 This is the README file for OurNet::FuzzyIndex, an inverted search
-engine for double-byte characters, by The Elixir Initiative and
-OurInternet Inc.
+engine for double-byte character sets (currently Big5 only).
 
 * Installation
 
@@ -31,8 +30,8 @@ For examples and usage.
 
 * Copyright
 
-Copyright 2001 by Autrijus Tang <autrijus@autrijus.org>,
-		  Chia-Liang Kao <clkao@clkao.org>.
+Copyright 2001, 2003 by Autrijus Tang <autrijus@autrijus.org>,
+			Chia-Liang Kao <clkao@clkao.org>.
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.

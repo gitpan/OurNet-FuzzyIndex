@@ -1,8 +1,10 @@
 #!/usr/bin/perl
-# $File: //depot/OurNet-FuzzyIndex/Makefile.PL $ $Author: autrijus $
-# $Revision: #9 $ $Change: 2746 $ $DateTime: 2001/12/29 07:18:52 $
+# $File: //depot/libOurNet/FuzzyIndex/Makefile.PL $ $Author: autrijus $
+# $Revision: #2 $ $Change: 3769 $ $DateTime: 2003/01/24 00:06:25 $
 
 require 5.005;
+
+my $path = 'blib/lib/OurNet/ChatBot';
 
 builddb() if grep { /^--builddb$/ } @ARGV;
 
@@ -38,18 +40,20 @@ WriteMakefile(
     }
 );
 
+### BuildDB ###############################################################
+
 sub builddb {
     # ok, we're doing something totally evil here.
     unshift @INC, ('blib/lib', 'blib/arch');
     require OurNet::ChatBot;
 
     unlink 'fianjmo.db'; # XXX: remove legacy DBs
-    mkdir 'blib/lib/OurNet/ChatBot', 0777;
-    my $db = OurNet::ChatBot->new('fianjmo', 'blib/lib/OurNet/ChatBot/fianjmo.db', 1);
+    mkdir $path, 0777;
+    my $db = OurNet::ChatBot->new('fianjmo', "$path/fianjmo.db", 1);
 
     unless ($db->{db}{idxcount}) {
 	local $| = 1;
-	print "Building fianjmo.db, please wait...";
+	print "*** Building fianjmo.db, please wait...";
 
 	my ($user, $lastmsg) = ('','');
 
@@ -2027,4 +2031,3 @@ __DATA__
 <fianjmo> 別耽心，我會好生收拾殘局的。
 [Annerose] 妳多保重。我只能做到這樣了。
 <fianjmo> 自己在她的眼底，就是一隻擒回巢中馴養的折翼小鳥
-
