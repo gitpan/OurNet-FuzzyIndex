@@ -1,0 +1,13 @@
+MANIFEST
+README
+Changes
+avltree.c
+avltree.h
+ChatBot.pm
+FuzzyIndex.pm
+FuzzyIndex.xs
+Makefile.PL
+parse.c
+t/FuzzyIndex.t
+bin/fzquery
+bin/fzindex

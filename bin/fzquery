@@ -1,0 +1,43 @@
+#!/usr/bin/perl -w
+
+$VERSION = '1.5';
+
+=head1 NAME
+
+fzquery - index wrapper around OurNet::FuzzyIndex
+
+=head1 SYNOPSIS
+
+    % fzquery index.db "where could i find some books?" # from arg
+    % fzquery index.db << query.txt                     # from stdin
+
+=head1 DESCRIPTION
+
+Just run fzquery at command line. The first argument is the db file
+to query from, remaining arguments being the query string. If no
+query was given, it will read from STDIN.
+
+=cut
+
+use OurNet::FuzzyIndex '1.5';
+
+my $idxfile = shift 
+    or die "Usage: $0 <indexfile> [query]\n";
+
+die "Cannot read $idxfile\n" unless -r $idxfile;
+
+local $/;
+
+$db = OurNet::FuzzyIndex->new($idxfile);
+
+# Combine the result with another query
+my %result = $db->query(join(' ', @ARGV ? @ARGV : <>), MATCH_FUZZY);
+
+# Dump the results; note you have to call $db->getkey each time
+foreach my $idx (sort {$result{$b} <=> $result{$a}} keys(%result)) {
+    printf ("%5.1f%\t%s\n", $result{$idx}/10, $db->getkey($idx));
+}
+
+1;
+
+__END__
