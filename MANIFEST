@@ -1,11 +1,11 @@
 MANIFEST
 README
+FuzzyIndex.xs
 Changes
 avltree.c
 avltree.h
 ChatBot.pm
 FuzzyIndex.pm
-FuzzyIndex.xs
 Makefile.PL
 parse.c
 t/FuzzyIndex.t

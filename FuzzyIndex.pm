@@ -1,7 +1,7 @@
 package OurNet::FuzzyIndex;
 require 5.005;
 
-$OurNet::FuzzyIndex::VERSION = '1.5';
+$OurNet::FuzzyIndex::VERSION = '1.51';
 
 use strict;
 use integer;
