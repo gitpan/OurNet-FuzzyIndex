@@ -1,10 +1,10 @@
 #!/usr/bin/perl -w
 
-$VERSION = '1.5';
+$VERSION = '1.52';
 
 =head1 NAME
 
-fzquery - index wrapper around OurNet::FuzzyIndex
+fzquery - FuzzyIndex query utility
 
 =head1 SYNOPSIS
 
@@ -19,7 +19,7 @@ query was given, it will read from STDIN.
 
 =cut
 
-use OurNet::FuzzyIndex '1.5';
+use OurNet::FuzzyIndex '1.52';
 
 my $idxfile = shift 
     or die "Usage: $0 <indexfile> [query]\n";
@@ -41,3 +41,17 @@ foreach my $idx (sort {$result{$b} <=> $result{$a}} keys(%result)) {
 1;
 
 __END__
+
+=head1 AUTHORS
+
+Autrijus Tang E<lt>autrijus@autrijus.org>
+
+=head1 COPYRIGHT
+
+Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>.
+
+All rights reserved.  You can redistribute and/or modify
+this module under the same terms as Perl itself.
+
+=cut
+

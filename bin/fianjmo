@@ -1,0 +1,61 @@
+#!/usr/bin/perl -w
+
+$VERSION = '1.00';
+
+=head1 NAME
+
+fianjmo - Chat with a virtual personality
+
+=head1 SYNOPSIS
+
+    % fianjmo [personality]
+
+=head1 DESCRIPTION
+
+Just run fianjmo at command line, enter any sentence, press enter,
+and repeat. Press Ctrl-D to terminate the conversation.
+
+=head1 BUGS
+
+This is done in zh_TW.Big5 charset. To any other terminal it might
+be unintelligible.
+
+=cut
+
+use strict;
+use OurNet::ChatBot;
+
+my $bot = eval { OurNet::ChatBot->new(
+    'fianjmo', 
+    'fianjmo.'.($ARGV[0] ? "$ARGV[0]." : '').'db' 
+)};
+
+if ($@ or !$bot->{db}{idxcount}) {
+    die "No database found. You have to build it with 'make test'.\n";
+}
+
+print "*** 現在進入 #fianjmo 聊天室\n";
+print '['.($ENV{USER} || 'user').'] ';
+
+while (<STDIN>) {
+    print '<fianjmo> '.($bot->input($_) || '...')."\n";
+    print '['.($ENV{USER} || 'user').'] ';
+}
+
+1;
+
+__END__
+
+=head1 AUTHORS
+
+Autrijus Tang E<lt>autrijus@autrijus.org>
+
+=head1 COPYRIGHT
+
+Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>.
+
+All rights reserved.  You can redistribute and/or modify
+this module under the same terms as Perl itself.
+
+=cut
+

@@ -1,7 +1,7 @@
 package OurNet::FuzzyIndex;
 require 5.005;
 
-$OurNet::FuzzyIndex::VERSION = '1.51';
+$OurNet::FuzzyIndex::VERSION = '1.52';
 
 use strict;
 use integer;
@@ -179,20 +179,20 @@ sub new {
     $self->{submin}   = shift || 0;
     $self->{submax}   = shift || $self->{subcount} - 1;
     $self->{submod}   = (
-		$self->{submin} or $self->{submax} >= $self->{subcount}
-	) ? $self->{subcount} : 0;
+	$self->{submin} or $self->{submax} >= $self->{subcount}
+    ) ? $self->{subcount} : 0;
 
     $self->{idxcount} = $self->{db}{_idxcount} || 0;
 
     foreach my $num ($self->{submin}..$self->{submax}) {
         $self->{subobj}[$num] = tie (
-			%{$self->{subdb}[$num]},
+	    %{$self->{subdb}[$num]},
             'DB_File',
             "$self->{dbfile}.$num",
             $self->{flag},
             $self->{flag} ? 0640 : 0440,
             $DB_BTREE
-		) or die "Cannot open child DB # $num";
+	) or die "Cannot open child DB # $num";
     }
 
     return $self;

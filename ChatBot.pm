@@ -1,11 +1,9 @@
 package OurNet::ChatBot;
 require 5.005;
 
-$OurNet::ChatBot::VERSION = '1.2';
+$OurNet::ChatBot::VERSION = '1.21';
 
 use strict;
-use lib qw/./;
-
 use OurNet::FuzzyIndex;
 
 =head1 NAME
@@ -16,11 +14,15 @@ OurNet::ChatBot - Context-free interactive Q&A engine
 
     use OurNet::ChatBot;
 
-    $mybot = OurNet::ChatBot->new('Amber', 'Amber.bot', 0);
+    my $bot = eval { OurNet::ChatBot->new('fianjmo', 'fianjmo.db') };
+
+    if ($@ or !$bot->{db}{idxcount}) {
+	die "No database found. you must build it with 'make test'.\n";
+    }
 
     while (1) {
-        print 'User: ';
-        print 'Amber Bot: '.$mybot->input(<STDIN>)."\n";
+	print '['.($ENV{USER} || 'user').'] ';
+	print '<fianjmo> '.($bot->input(scalar <STDIN>) || '...')."\n";
     }
 
 =head1 DESCRIPTION
@@ -38,7 +40,7 @@ the front-end program could prevent duplicate responses.
 
 =head1 CAVEATS
 
-The nextone flag-property is badly implemented.
+The nextone flag-property is implemented badly.
 
 =cut
 
@@ -57,30 +59,27 @@ use fields qw/botfile botname writable db nextone
 sub new {
     my $self = fields::new(shift);
 
-    $self->{'botname'}  = shift;
-    $self->{'botfile'}  = shift
+    $self->{botname}  = shift;
+    $self->{botfile}  = shift
         or (warn("OurNet::ChatBot needs a bot"), return);
-    $self->{'writable'} = shift;
+    $self->{writable} = shift;
 
     my $botfile = '';
+    my $botdir = __FILE__;
+    $botdir =~ s|\.pm$||;
 
-    foreach my $botdir (@INC) {
-        last if -e ($botfile = "$botdir/$self->{'botfile'}");
-        last if -e ($botfile = "$botdir/Chatbot/$self->{'botfile'}");
-        last if -e ($botfile = "$botdir/Amber/$self->{'botfile'}");
-    }
+    eval { mkdir($botdir) unless -d $botdir };
 
-    $botfile = $self->{'botfile'} if -e $self->{'botfile'};
+    $botfile = (-e $self->{botfile})
+	? $self->{botfile} 
+	: "$botdir/$self->{botfile}";
 
-    unless (-e $botfile) {
-        die("OurNet::ChatBot cannot find the database: $self->{'botfile'}")
-            unless $self->{'writable'};
-        $botfile = $self->{'botfile'};
-    }
+    die("OurNet::ChatBot cannot find the database: $self->{botfile}")
+	unless (-e $botfile or $self->{writable});
 
-    $self->{'db'}       = OurNet::FuzzyIndex->new($botfile);
-    $self->{'synonyms'} = [split(/\n/, $self->{'db'}->getvar('synonyms') || '')];
-    $self->{'rndouts'}  = [split(/\n/, $self->{'db'}->getvar('rndouts')  || '')]
+    $self->{db}       = OurNet::FuzzyIndex->new($botfile);
+    $self->{synonyms} = [split(/\n/, $self->{db}->getvar('synonyms') || '')];
+    $self->{rndouts}  = [split(/\n/, $self->{db}->getvar('rndouts')  || '')]
                           || ['...'];
 
     return $self;
@@ -95,7 +94,7 @@ sub addsyn {
     my $self = shift;
     my $skey = shift;
 
-    push(@{$self->{'synonyms'}}, $skey || ' ', join('|', @_));
+    push(@{$self->{synonyms}}, $skey || ' ', join('|', @_));
 }
 
 # ------------------------------------------------
@@ -106,17 +105,17 @@ sub addsyn {
 sub addentry {
     my $self    = shift;
     my $content = shift;
-    # my %words   = $self->{'db'}->parse_xs($content);
+    # my %words   = $self->{db}->parse_xs($content);
 
-    return unless $self->{'writable'};
+    return unless $self->{writable};
 
     # while (my $weight = shift) {
-        # %words = $self->{'db'}->parse_xs(shift, $weight, \%words);
+        # %words = $self->{db}->parse_xs(shift, $weight, \%words);
     # }
 
-    # $self->{'db'}->insert($content, \%words);
+    # $self->{db}->insert($content, \%words);
     print "."; # print $content."\n";
-    $self->{'db'}->insert($content, shift || $content);
+    $self->{db}->insert($content, shift || $content);
 }
 
 
@@ -128,11 +127,11 @@ sub addentry {
 sub sync {
     my $self = shift;
 
-    return unless $self->{'writable'};
+    return unless $self->{writable};
 
-    $self->{'db'}->setvar('synonyms', join("\n", @{$self->{'synonyms'}}));
-    $self->{'db'}->setvar('rndouts', join("\n", @{$self->{'rndouts'}}));
-    $self->{'db'}->sync;
+    $self->{db}->setvar('synonyms', join("\n", @{$self->{synonyms}}));
+    $self->{db}->setvar('rndouts', join("\n", @{$self->{rndouts}}));
+    $self->{db}->sync;
 }
 
 # -------------------------------------
@@ -144,29 +143,29 @@ sub sync {
 sub input {
     my $self    = shift;
     my $say     = shift;
-    my $avoid   = join(',', ($self->{'avoid'} || '', @_ || '', ''));
+    my $avoid   = join(',', ($self->{avoid} || '', @_ || '', ''));
 
     # Substitute synonyms
-    foreach my $synline (0 .. (($#{$self->{'synonyms'}} - 1) / 2)) {
-        $say =~ s{$self->{'synonyms'}[$synline * 2 + 1]}
-                 {$self->{'synonyms'}[$synline * 2]}g;
+    foreach my $synline (0 .. (($#{$self->{synonyms}} - 1) / 2)) {
+        $say =~ s{$self->{synonyms}[$synline * 2 + 1]}
+                 {$self->{synonyms}[$synline * 2]}g;
     }
 
-    my %matched = $self->{'db'}->query("$say\xa4\x3f", $MATCH_PART);
+    my %matched = $self->{db}->query("$say\xa4\x3f", $MATCH_PART);
 
     foreach my $match (sort {$matched{$b} <=> $matched{$a}} keys(%matched)) {
         my $num = unpack('N', $match);
         next if index($avoid, ",$num,") > -1;
 
-        $self->{'lastone'} = $num;
-        $self->{'avoid'}  .= ",$num";
+        $self->{lastone} = $num;
+        $self->{avoid}  .= ",$num";
 
-        return $self->{'db'}->getkey($self->{'nextone'}
-            ? pack('N', ($num % $self->{'db'}->{'idxcount'}) + 1)
+        return $self->{db}->getkey($self->{nextone}
+            ? pack('N', ($num % $self->{db}{idxcount}) + 1)
             : $match);
     }
 
-    return $self->{'rndouts'}[ int(rand() * ($#{$self->{'rndouts'}} + 1)) ];
+    return $self->{rndouts}[ int(rand() * ($#{$self->{rndouts}} + 1)) ];
 }
 
 # -----------------------------------------------------
@@ -181,13 +180,13 @@ sub convert {
 
     foreach my $line ($init =~ m/^SYN \[(.*)\]/gm) {
         if ($line =~ m/^(.*)\s?::\s?(.+)/) {
-            push(@{$self->{'synonyms'}}, $1 || ' ',
+            push(@{$self->{synonyms}}, $1 || ' ',
                  join('|', split(/\\\s/, '('.quotemeta($2).')')));
         }
     }
 
     if ($init =~ m/^RND \[(.*)\]/m) {
-        @{$self->{'rndouts'}} = split(/\s+/, $1);
+        @{$self->{rndouts}} = split(/\s+/, $1);
     }
 
     if ($init =~ m/^DEV \[(\d+)\]/m) {

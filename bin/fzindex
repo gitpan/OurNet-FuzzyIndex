@@ -1,10 +1,10 @@
 #!/usr/bin/perl -w
 
-$VERSION = '1.5';
+$VERSION = '1.52';
 
 =head1 NAME
 
-fzindex - index wrapper around OurNet::FuzzyIndex
+fzindex - FuzzyIndex index utility
 
 =head1 SYNOPSIS
 
@@ -19,13 +19,13 @@ files to be indexed.
 
 =cut
 
-use OurNet::FuzzyIndex '1.5';
+use OurNet::FuzzyIndex '1.52';
 use strict;
 
 local $/;
 
 my $db = OurNet::FuzzyIndex->new(
-    shift or die "Usage: $0 <indexfile> [files | filespec]\n"
+    shift || die "Usage: $0 <indexfile> [files | filespec]\n"
 );
 
 foreach my $file (<@ARGV>) {
@@ -41,3 +41,17 @@ foreach my $file (<@ARGV>) {
 1;
 
 __END__
+
+=head1 AUTHORS
+
+Autrijus Tang E<lt>autrijus@autrijus.org>
+
+=head1 COPYRIGHT
+
+Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>.
+
+All rights reserved.  You can redistribute and/or modify
+this module under the same terms as Perl itself.
+
+=cut
+
