@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 # $File: //depot/OurNet-FuzzyIndex/bin/fzquery $ $Author: autrijus $
-# $Revision: #3 $ $Change: 2257 $ $DateTime: 2001/11/03 12:49:08 $
+# $Revision: #4 $ $Change: 2788 $ $DateTime: 2002/01/07 20:43:15 $
 
-$VERSION = '1.53';
+$VERSION = '1.55';
 
 =head1 NAME
 
@@ -15,11 +15,11 @@ B<fzquery> I<database> << I<file>
 
 =head1 DESCRIPTION
 
-Just run F<fzquery> at command line. The first argument is the Berkeley
+Just run F<fzquery> from command line. The first argument is the Berkeley
 DB file to query from, remaining arguments being the query string. If no
-query was given, it will read from B<STDIN>.
+query was given this way, it will read from B<STDIN> instead.
 
-Example usages:
+Example usage:
 
     % fzquery index.db "where could i find some books?" # from arg
     % fzquery index.db << query.txt                     # from stdin
@@ -41,7 +41,7 @@ my %result = $db->query(join(' ', @ARGV ? @ARGV : <>), MATCH_FUZZY);
 
 # Dump the results; note you have to call $db->getkey each time
 foreach my $idx (sort { $result{$b} <=> $result{$a} } keys(%result)) {
-    printf("%5.1f%\t%s\n", $result{$idx} / 10, $db->getkey($idx));
+    printf("%5.1f\t%s\n", $result{$idx} / 10, $db->getkey($idx));
 }
 
 1;
@@ -50,11 +50,11 @@ __END__
 
 =head1 AUTHORS
 
-Autrijus Tang E<lt>autrijus@autrijus.org>
+Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>.
+Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.

@@ -1,10 +1,10 @@
 # $File: //depot/OurNet-FuzzyIndex/FuzzyIndex.pm $ $Author: autrijus $
-# $Revision: #8 $ $Change: 2743 $ $DateTime: 2001/12/29 06:41:00 $
+# $Revision: #9 $ $Change: 2787 $ $DateTime: 2002/01/07 20:42:26 $
 
 package OurNet::FuzzyIndex;
-require 5.005;
+require 5.000;
 
-$OurNet::FuzzyIndex::VERSION = '1.54';
+$OurNet::FuzzyIndex::VERSION = '1.55';
 
 use strict;
 use integer;

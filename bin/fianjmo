@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 # $File: //depot/OurNet-FuzzyIndex/bin/fianjmo $ $Author: autrijus $
-# $Revision: #4 $ $Change: 2743 $ $DateTime: 2001/12/29 06:41:00 $
+# $Revision: #5 $ $Change: 2786 $ $DateTime: 2002/01/07 20:40:11 $
 
-$VERSION = '1.01';
+$VERSION = '1.02';
 
 =head1 NAME
 
@@ -10,7 +10,7 @@ fianjmo - Chat with a virtual personality
 
 =head1 SYNOPSIS
 
-B<fianjmo> [ I<personality> ]
+B<fianjmo> S<[ I<personality> ]>
 
 =head1 DESCRIPTION
 
@@ -38,10 +38,12 @@ if ($@ or !$bot->{db}{idxcount}) {
     die "No database found. ($@)\n";
 }
 
-print "*** Joined channel #fianjmo. Press Ctrl-D to quit.\n";
+print "*** Joined channel #fianjmo. Enter /bye to quit.\n";
 print '['.($ENV{USER} || 'user').'] ';
 
 while (<STDIN>) {
+    exit if /^\/b(?:ye)?/;
+    next if /^[\s\t]*$/;
     print '<fianjmo> '.($bot->input($_) || '請說中文。')."\n";
     print '['.($ENV{USER} || 'user').'] ';
 }
@@ -52,11 +54,11 @@ __END__
 
 =head1 AUTHORS
 
-Autrijus Tang E<lt>autrijus@autrijus.org>
+Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>.
+Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.

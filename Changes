@@ -1,4 +1,31 @@
 ____________________________________________________________________________
+[  2790] By: autrijus                              on 2002/01/07  20:50:05
+        Log: * This be OurNet::FuzzyIndex 1.55.
+             * ditch PerlCtrl in dist; sort manifest
+	   ! MANIFEST
+____________________________________________________________________________
+[  2789] By: autrijus                              on 2002/01/07  20:44:42
+        Log: * minor documentation tweaks.
+	   ! README parse.c
+____________________________________________________________________________
+[  2788] By: autrijus                              on 2002/01/07  20:43:15
+        Log: * fzquery now display the results correctly.
+             * fzindex will skip over files that it cannot open.
+	   ! bin/fzindex bin/fzquery
+____________________________________________________________________________
+[  2787] By: autrijus                              on 2002/01/07  20:42:26
+        Log: * lift required perl version to 5.000.
+             * bump version number.
+	   ! FuzzyIndex.pm
+____________________________________________________________________________
+[  2786] By: autrijus                              on 2002/01/07  20:40:11
+        Log: * fianjmo now exists via /b or /bye courtesy of Jedi's suggestion.
+	   ! bin/fianjmo
+____________________________________________________________________________
+[  2747] By: autrijus                              on 2001/12/29  07:21:44
+        Log: * changes.
+	   ! Changes
+____________________________________________________________________________
 [  2746] By: autrijus                              on 2001/12/29  07:18:52
         Log: * This be OurNet::FuzzyIndex v1.54.
              * Updates README to reflect some recent happenings.

@@ -1,8 +1,8 @@
 #!/usr/bin/perl -w
 # $File: //depot/OurNet-FuzzyIndex/bin/fzindex $ $Author: autrijus $
-# $Revision: #3 $ $Change: 2257 $ $DateTime: 2001/11/03 12:49:08 $
+# $Revision: #4 $ $Change: 2788 $ $DateTime: 2002/01/07 20:43:15 $
 
-$VERSION = '1.53';
+$VERSION = '1.55';
 
 =head1 NAME
 
@@ -39,7 +39,7 @@ foreach my $file (<@ARGV>) {
 
     print "indexing $file...\n";
 
-    open _, $file;
+    open _, $file or print "*** failed to open $file, skipping.\n" and next;
     $db->insert($file, <_> || '');
     close _;
 }
@@ -50,11 +50,11 @@ __END__
 
 =head1 AUTHORS
 
-Autrijus Tang E<lt>autrijus@autrijus.org>
+Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.org>.
+Copyright 2001 by Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>.
 
 This program is free software; you can redistribute it and/or 
 modify it under the same terms as Perl itself.

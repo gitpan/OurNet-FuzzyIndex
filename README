@@ -1,5 +1,5 @@
 # $File: //depot/OurNet-FuzzyIndex/README $ $Author: autrijus $
-# $Revision: #6 $ $Change: 2746 $ $DateTime: 2001/12/29 07:18:52 $
+# $Revision: #7 $ $Change: 2789 $ $DateTime: 2002/01/07 20:44:42 $
 
 This is the README file for OurNet::FuzzyIndex, an inverted search
 engine for double-byte characters, by The Elixir Initiative and
@@ -20,6 +20,14 @@ compiled binaries at http://melix.elixus.org/ instead.
 After installation, type "fianjmo" in your command prompt for
 an interactive chat in Traditional Chinese (zh_TW.Big5), which
 comes with the bundled OurNet::ChatBot module.
+
+The "fzindex" and "fzquery" are simple utility commands that
+generates and queries a full-text index db, respectively. Enter
+
+perldoc fzindex
+perldoc fzquery
+
+For examples and usage.
 
 * Copyright
 

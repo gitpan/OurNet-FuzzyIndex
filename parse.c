@@ -1,15 +1,18 @@
 /* $File: //depot/OurNet-FuzzyIndex/parse.c $ $Author: autrijus $
-   $Revision: #3 $ $Change: 2740 $ $DateTime: 2001/12/28 07:15:35 $ */
+   $Revision: #4 $ $Change: 2789 $ $DateTime: 2002/01/07 20:44:42 $ */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "avltree.c"
 
-#define MAXKEY	(32)
-#define MAXVAL	(32768)
+#define MAXKEY	(32)		/* significant portion of a word */
+#define MAXVAL	(32768)		/* maximum callback string length */
 #define MAXFREQ (0xa3)		/* maximum occurrence to avoid ambiguity */
-#define PARSE_SINGLE_CHARACTER
+
+#undef PARSE_DEBUG		/* debug output on parsing */
+#undef PARSE_MAIN		/* standalone; print simple callback demo */
+#define PARSE_SINGLE_CHARACTER	/* parse lone character in addition to pairs */
 
 /* various macros to define valid encoding points */
 #define is_big5(p)	((unsigned int)*(p) > 0xa0)
@@ -35,6 +38,7 @@ char *valp = val;
 char  query;
 tree *wordtree;
 
+/* return the parse tree separated by delimiter string */
 int
 cb_delim(struct entry *en)
 {
@@ -85,6 +89,7 @@ cb_delim(struct entry *en)
     return 1;
 }
 
+/* return the parse tree as (word, freq) pairs */
 int
 cb_pair(struct entry *en)
 {
@@ -100,6 +105,7 @@ cb_pair(struct entry *en)
     return 1;
 }
 
+/* return the parse tree as (word, word_length, freq) lists */
 int
 cb_word(struct entry *en)
 {
@@ -114,12 +120,14 @@ cb_word(struct entry *en)
     return 1;
 }
 
+/* compares two nodes in the tree by their word value */
 int
 wordcmp(struct entry *a, struct entry *b)
 {
     return strcmp(a->word, b->word);
 }
 
+/* inserts an entry to the parse tree */
 void
 addentry(char *x)
 {
@@ -137,17 +145,17 @@ addentry(char *x)
     }
 }
 
+/* clean up a parse tree */
 void
 en_cleanup(struct entry *en)
 {
     free(en);
 }
 
+/* extract words from a string to the wordtree */
 void
 extract_words(unsigned char *p)
 {
-    /* autrijus 8/20: fixed null-termination, increased performance */
-
     tree_init(&wordtree);
 
     while (*p) {
@@ -163,8 +171,6 @@ extract_words(unsigned char *p)
 		    addentry(key);
 		}
 #ifdef PARSE_SINGLE_CHARACTER
-		/* autrijus 7/17: add single-letter handling */
-		/* autrijus 9/23: optimization for queries */
 		if (!(query && is_big5word(p - 4))) {
 		    key[2] = key[3] = 0x21;
 		    strncpy(key, p - 2, 2);
@@ -176,7 +182,6 @@ extract_words(unsigned char *p)
 		key[2] = key[3] = 0x21;
 		strncpy(key, p - 2, 2);
 		addentry(key);
-		/* end autrijus */
 #endif
 	    }
 	}
@@ -206,6 +211,7 @@ extract_words(unsigned char *p)
     }
 }
 
+/* parse string and callback via cb_delim */
 void
 parse_delim(unsigned char *p, char *seed, PARSE_CB * callback)
 {
@@ -225,6 +231,7 @@ parse_delim(unsigned char *p, char *seed, PARSE_CB * callback)
     tree_mung(&wordtree, (BTREE_UAR *) en_cleanup);
 }
 
+/* parse string and callback via cb_pair */
 void
 parse_pair(unsigned char *p, PARSE_CB * callback)
 {
@@ -237,6 +244,7 @@ parse_pair(unsigned char *p, PARSE_CB * callback)
 }
 
 
+/* parse string and callback via cb_word */
 void
 parse_word(unsigned char *p, PARSE_CB * callback)
 {
@@ -250,19 +258,19 @@ parse_word(unsigned char *p, PARSE_CB * callback)
 
 #ifdef PARSE_MAIN
 
-/* a simple callback demo -- just prints its arguments for debuggin */
-
+/* a simple callback demo -- just prints its arguments for debugging */
 void
 default_cb(char *arg1, char *arg2)
 {
     printf("(%s - %s)\n", arg1, arg2 + 4);
 }
 
+/* main program to execute default_cb on a string */
 int
 main()
 {
     return extract_words(
-	"道可道非常道名可名非常名無名萬物始有名天地母", default_cb
+	"道可道非常道名可名非常名無名天地始有名萬物母", default_cb
     );
 }
 
